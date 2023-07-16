@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from db.models import Post, User
@@ -9,7 +9,22 @@ from .auth import get_current_user
 router = APIRouter()
 
 
-@router.post("/posts", response_model=PostResponse, tags=["posts"])
+@router.get("/posts", response_model=list[PostResponse], tags=["posts"])
+def post_list(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    # Calculate the offset based on the page and limit
+    offset = (page - 1) * limit
+
+    # Query the database to retrieve the paginated posts
+    posts = db.query(Post).offset(offset).limit(limit).all()
+
+    return posts
+
+
+@router.post("/posts/create/", response_model=PostResponse, tags=["posts"])
 def create_post(post: PostCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     new_post = Post(title=post.title, content=post.content, author_id=current_user.id)
     db.add(new_post)
@@ -78,6 +93,6 @@ def dislike_post(post_id: int, dislike_data: DislikePost, db: Session = Depends(
 
 
 @router.get("/liked-posts", response_model=LikedPostResponse, tags=["posts"])
-def liked_posts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def liked_posts(current_user: User = Depends(get_current_user)):
     liked_posts = current_user.liked_posts
     return {"liked_posts": liked_posts}
