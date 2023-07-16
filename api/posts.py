@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from db.models import Post, User
 from core.database import get_db
-from .schemas import PostCreate, PostUpdate, PostResponse, LikePost, DislikePost, LikedPostResponse
+from .schemas import PostCreate, PostUpdate, PostResponse, LikedPostResponse
 from .auth import get_current_user
 
 router = APIRouter()
@@ -15,10 +15,7 @@ def post_list(
     limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db)
 ):
-    # Calculate the offset based on the page and limit
     offset = (page - 1) * limit
-
-    # Query the database to retrieve the paginated posts
     posts = db.query(Post).offset(offset).limit(limit).all()
 
     return posts
@@ -63,7 +60,7 @@ def delete_post(post_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/posts/{post_id}/like", tags=["posts"])
-def like_post(post_id: int, like_data: LikePost, db: Session = Depends(get_db),
+def like_post(post_id: int, db: Session = Depends(get_db),
               current_user: User = Depends(get_current_user)):
     post = db.query(Post).get(post_id)
     if not post:
@@ -78,7 +75,7 @@ def like_post(post_id: int, like_data: LikePost, db: Session = Depends(get_db),
 
 
 @router.post("/posts/{post_id}/dislike", tags=["posts"])
-def dislike_post(post_id: int, dislike_data: DislikePost, db: Session = Depends(get_db),
+def dislike_post(post_id: int, db: Session = Depends(get_db),
                  current_user: User = Depends(get_current_user)):
     post = db.query(Post).get(post_id)
     if not post:

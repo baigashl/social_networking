@@ -55,13 +55,5 @@ class PostWithAuthorResponse(PostResponse):
     author: UserProfile
 
 
-class LikePost(BaseModel):
-    post_id: int
-
-
-class DislikePost(BaseModel):
-    post_id: int
-
-
 class LikedPostResponse(BaseModel):
     liked_posts: List[PostResponse]
