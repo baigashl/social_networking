@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+# from config import settings
 
-SQLALCHEMY_DATABASE_URL = "postgresql://insta_user:qwe123@localhost/insta"
+SQLALCHEMY_DATABASE_URL = 'postgresql://insta_user:qwe123@db/insta'
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -16,9 +17,3 @@ def get_db():
         db.close()
 
 
-def create_all_tables():
-    Base.metadata.create_all(bind=engine)
-
-
-def drop_all_tables():
-    Base.metadata.drop_all(bind=engine)
